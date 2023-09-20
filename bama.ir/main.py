@@ -35,16 +35,67 @@ with open('html_source.txt',mode='r',encoding='utf-8') as file :
 ads_data = BeautifulSoup(ads_data, 'html.parser')
 
 
-def ads_extraction(ad_suorce):
-
+def ads_fs_extraction(ad_suorce):
+    result_list = []
+    data_dic = {'title': '',
+                'link': '',
+                'id': '',
+                'model': '',
+                'type': '',
+                'year': '',
+                'used': '',
+                'gear': '',
+                'badges': '',
+                'price': '',
+                'city': '',
+                'address': ''
+                }
     bama_ad_holder = ad_suorce.find_all('div', class_='bama-ad-holder')
     for ad in bama_ad_holder :
-        title = ad.find('a').attrs['title']
-        link = ad.find('a').attrs['href']
-        bama_ad__title_row = ad.find('div',{'class':'bama-ad__title-row'})
-        bama_ad__detail_row =ad.find('div',{'class':'bama-ad__detail-row'})
-        bama_ad__badges_row = ad.find('div',{'class':'bama-ad__badges-row'})
-        bama_ad__price_row = ad.find('div',{'class':'bama-ad__price-row'})
-        print(title)
+        data_dic['title'] = ad.find('a').attrs['title']
+        data_dic['link'] = ad.find('a').attrs['href']
+        data_dic['id'] = ad.find('a').attrs['data-adcode'] 
+        data_dic['model'] = ad.find('div',{'class':'bama-ad__title-row'}).text.split('،')[0]
+        data_dic['type'] = ad.find('div',{'class':'bama-ad__title-row'}).text.split('،')[1]
 
-ads_extraction(ads_data)
+        data_dic['year'] =ad.find('div',{'class':'bama-ad__detail-row'}).find_all('span')[0].text
+        data_dic['used'] =ad.find('div',{'class':'bama-ad__detail-row'}).find_all('span')[1].text
+        data_dic['gear'] =ad.find('div',{'class':'bama-ad__detail-row'}).find_all('span')[2].text
+     
+        bama_ad_badges_row = ad.find('div', {'class': 'bama-ad__badges-row'})
+
+        if bama_ad_badges_row:
+            span_element = bama_ad_badges_row.find('span')
+            if span_element:
+                data_dic['badges'] = span_element.text
+            else:
+                data_dic['badges'] = 'N/A'
+        else:
+            data_dic['badges'] = 'N/A'
+
+        data_dic['price'] = ad.find('div',{'class':'bama-ad__price-row'}).find('span').text
+        data_dic['city'] = ad.find('div',{'class':'bama-ad__address'}).find('span').text.split('/')[0]
+        bama_ad_address = ad.find('div', {'class': 'bama-ad__address'})
+
+        if bama_ad_address:
+            span_element = bama_ad_address.find('span')
+            if span_element:
+                address_text = span_element.text
+                address_parts = address_text.split('/')
+                if len(address_parts) >= 2:
+                    data_dic['address'] = address_parts[1].strip()
+                else:
+                    data_dic['address'] = 'N/A'
+            else:
+                data_dic['address'] = 'N/A'
+        else:
+            data_dic['address'] = 'N/A'
+
+        result_list.append(data_dic.copy())  
+        
+        
+    return result_list
+fast_scran_result = ads_fs_extraction(ads_data)
+
+with open('fast_scran_result.txt',mode='w',encoding='utf-8') as file :
+   file.write(str(fast_scran_result))
