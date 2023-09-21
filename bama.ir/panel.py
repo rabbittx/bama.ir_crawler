@@ -13,20 +13,18 @@ class panel :
         print('1. fast scan')
         print('2. deep scan')
         print('-1. quit')
-        choose = int(input('choose the scan type : '))
       
-        while choose != -1 :
-            if choose == 1 :
+        while True :
+            choose = input('choose the scan type : ')
+            if choose == '1' :
                 self.do_fast_scan()
-                self.panel_menu()
-            elif choose == 2 :
+            elif choose == '2' :
                 print('this part need to get fix')
-                self.panel_menu()
-            elif choose == -1:
+            elif choose == '-1' :
+                print("Exiting...")
                 break
             else:
                 print('wrong option !! retry')
-                self.panel_menu()
 
 
 if __name__ == '__main__' :
