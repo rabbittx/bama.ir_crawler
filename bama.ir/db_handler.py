@@ -8,6 +8,7 @@ cursor = conn.cursor()
 cursor.execute('''
     CREATE TABLE IF NOT EXISTS ads (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
+        ad_id TEXT,
         title TEXT,
         link TEXT,
         model TEXT,
@@ -18,6 +19,8 @@ cursor.execute('''
         gear TEXT,
         badges TEXT,
         price TEXT,
+               installment_price TEXT,
+monthly_price TEXT,
         city TEXT,
         address TEXT
     )
