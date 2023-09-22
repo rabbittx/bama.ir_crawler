@@ -203,7 +203,7 @@ def deep_scan_db_table():
             engine TEXT,
             acceleration TEXT,
             Combined_consumption TEXT,
-            call_number TEXT,
+            call_number TEXT
         )
     ''')
     conn.commit()
