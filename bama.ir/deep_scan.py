@@ -9,7 +9,7 @@ from selenium.webdriver.support import expected_conditions as EC
 
 
 BA_MA_URL = 'https://bama.ir/car'
-SCROLL_COUNT = 20
+SCROLL_COUNT = 1
 #
 def get_selenium_driver(url, scroll_count=5):
     options = webdriver.ChromeOptions()
@@ -88,6 +88,7 @@ def deep_scan_extract(driver,cursor,conn):
                         'acceleration':'',
                         'Combined_consumption':'',
                         'call_number':'',
+                        'ad_images' : ''
                        }
             
             address_text = ad_warpper[0].find_element(By.CLASS_NAME,'address-text').text.split('/')
@@ -127,8 +128,12 @@ def deep_scan_extract(driver,cursor,conn):
             seller_phone_number_element = WebDriverWait(driver, 30).until(
                 EC.presence_of_all_elements_located((By.CLASS_NAME, 'bama-call-to-seller__number-text')))
             data_dic['call_number'] = seller_phone_number_element[0].text
-
-
+            ad_image_list = []
+            for img in ad_warpper[0].find_elements(By.TAG_NAME,'img'):
+                
+                if img.get_attribute('src') not in ad_image_list:
+                    ad_image_list.append(img.get_attribute('src'))
+            data_dic['ad_images'] = ad_image_list
             print('===============================================')
             print(data_dic['title'])
             print(data_dic['link'])
@@ -148,6 +153,7 @@ def deep_scan_extract(driver,cursor,conn):
             print(data_dic['acceleration'])
             print(data_dic['Combined_consumption'])
             print(data_dic['call_number'])
+            print(data_dic['ad_images'])
             print('===============================================')
 
             # extracn all data here 
@@ -161,13 +167,13 @@ def deep_scan_extract(driver,cursor,conn):
             cursor.execute('''
             INSERT INTO deep_scan (title,link, ad_id,  model, date,type, year, used, gear,  price,installment_price,
             monthly_price, city, address,fuel_type,body_condition,body_color,interior_color,description,Engine_volume,
-                           engine,acceleration,Combined_consumption,call_number)
-            VALUES (?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?,?,?,?,?,?,?,?,?,?,?)
+                           engine,acceleration,Combined_consumption,call_number,ad_images)
+            VALUES (?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?,?,?,?,?,?,?,?,?,?,?,?)
         ''', (data_dic['title'],data_dic['ad_id'], data_dic['link'], data_dic['model'],data_dic['date'], data_dic['type'], data_dic['year'],
               data_dic['used'], data_dic['gear'],  data_dic['price'],data_dic['installment_price'],
               data_dic['monthly_price'], data_dic['city'], data_dic['address'],data_dic['fuel_type'],data_dic['body_condition'],
               data_dic['body_color'],data_dic['interior_color'],data_dic['description'],data_dic['Engine_volume'],data_dic['engine'],
-              data_dic['acceleration'],data_dic['Combined_consumption'],data_dic['call_number']))
+              data_dic['acceleration'],data_dic['Combined_consumption'],data_dic['call_number'],str(data_dic['ad_images'])))
             
 
             
@@ -203,13 +209,14 @@ def deep_scan_db_table():
             engine TEXT,
             acceleration TEXT,
             Combined_consumption TEXT,
-            call_number TEXT
+            call_number TEXT,
+            ad_images TEXT
         )
     ''')
     conn.commit()
     conn.close()  
 
-def fast_scan_main():
+def deep_scan_main():
     conn = sqlite3.connect('bama_ads.db')
     deep_scan_db_table()
     cursor = conn.cursor()
@@ -217,4 +224,3 @@ def fast_scan_main():
     deep_scan_extract(driver,cursor,conn)
     conn.close()
 
-fast_scan_main()

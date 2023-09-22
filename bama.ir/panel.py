@@ -1,5 +1,5 @@
 from fast_scan import fast_scan_main
-
+from deep_scan import deep_scan_main
 class panel :
     def __init__(self) -> None:
         pass
@@ -7,17 +7,20 @@ class panel :
     def do_fast_scan(self):
         fast_scan_main()
     
+    def do_deep_scan(self):
+        deep_scan_main()
     def panel_menu(self):
-        print('1. fast scan')
-        print('2. deep scan')
-        print('-1. quit')
+        
       
         while True :
+            print('1. fast scan')
+            print('2. deep scan')
+            print('-1. quit')
             choose = input('choose the scan type : ')
             if choose == '1' :
                 self.do_fast_scan()
             elif choose == '2' :
-                print('this part need to get fix')
+                self.do_deep_scan()
             elif choose == '-1' :
                 print("Exiting...")
                 break

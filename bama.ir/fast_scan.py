@@ -103,12 +103,12 @@ def extract_ad_data(ad,cursor):
             data_dic['city'] = address_row.find('span').text
             data_dic['address'] = 'N/A'
 
-    cursor.execute('SELECT ad_id FROM ads WHERE ad_id = ?', (data_dic['id'],))
+    cursor.execute('SELECT ad_id FROM fast_scan WHERE ad_id = ?', (data_dic['id'],))
     existing_id = cursor.fetchone()
 
     if existing_id is None:
         cursor.execute('''
-            INSERT INTO ads (title, ad_id, link, model, date,type, year, used, gear, badges, price,installment_price,
+            INSERT INTO fast_scan (title, ad_id, link, model, date,type, year, used, gear, badges, price,installment_price,
             monthly_price, city, address)
             VALUES (?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?,?)
         ''', (data_dic['title'],data_dic['id'], data_dic['link'], data_dic['model'],data_dic['date'], data_dic['type'], data_dic['year'],
@@ -126,7 +126,7 @@ def fast_scan_db_table():
     conn = sqlite3.connect('bama_ads.db')
     cursor = conn.cursor()
     cursor.execute('''
-        CREATE TABLE IF NOT EXISTS ads (
+        CREATE TABLE IF NOT EXISTS fast_scan (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             ad_id TEXT,
             title TEXT,
