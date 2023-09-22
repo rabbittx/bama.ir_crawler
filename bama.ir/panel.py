@@ -1,7 +1,7 @@
 from fast_scan import fast_scan_main
 from deep_scan import deep_scan_main
 class panel :
-    def __init__(self) -> None:
+    def __init__(self):
         pass
 
     def do_fast_scan(self):

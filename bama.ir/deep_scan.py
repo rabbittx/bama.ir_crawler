@@ -1,7 +1,6 @@
 import time 
 import sqlite3
 from selenium import webdriver
-from bs4 import BeautifulSoup
 from datetime import datetime, timedelta
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
@@ -9,8 +8,8 @@ from selenium.webdriver.support import expected_conditions as EC
 
 
 BA_MA_URL = 'https://bama.ir/car'
-SCROLL_COUNT = 1
-#
+SCROLL_COUNT = 50
+
 def get_selenium_driver(url, scroll_count=5):
     options = webdriver.ChromeOptions()
     options.add_argument("--disable-dev-shm-usage")
@@ -42,16 +41,10 @@ def calculate_date(date_string):
 
     elif 'سنجاق شده' in date_string:
         return now.strftime('%Y-%m-%d')
-    return None
+    return now.strftime('%Y-%m-%d')
 
 
 def deep_scan_extract(driver,cursor,conn):
-    
-
-
-
-
-
     ad_elements = driver.find_elements(By.CLASS_NAME,'bama-ad-holder')
     for ad in ad_elements:
         ad_id = ad.find_element(By.TAG_NAME,'a').get_attribute('data-adcode')
@@ -118,52 +111,27 @@ def deep_scan_extract(driver,cursor,conn):
                     data_dic['acceleration'] = item.find_element(By.CLASS_NAME,'bama-vehicle-detail-with-link__row-text').text
                 elif item.find_element(By.CLASS_NAME,'bama-vehicle-detail-with-link__row-title').text == 'مصرف ترکیبی':
                     data_dic['Combined_consumption'] = item.find_element(By.CLASS_NAME,'bama-vehicle-detail-with-link__row-text').text
-
-
-
-
             phone_number_btn = WebDriverWait(driver, 30).until(
                 EC.presence_of_all_elements_located((By.CLASS_NAME, 'bama-call-to-seller__button')))
             phone_number_btn[0].click()
-            seller_phone_number_element = WebDriverWait(driver, 30).until(
-                EC.presence_of_all_elements_located((By.CLASS_NAME, 'bama-call-to-seller__number-text')))
-            data_dic['call_number'] = seller_phone_number_element[0].text
+            try:
+                seller_phone_number_element = WebDriverWait(driver, 30).until(
+                    EC.presence_of_all_elements_located((By.CLASS_NAME, 'bama-call-to-seller__number-text')))
+                data_dic['call_number'] = seller_phone_number_element[0].text
+            except:
+                data_dic['call_number'] =''
             ad_image_list = []
             for img in ad_warpper[0].find_elements(By.TAG_NAME,'img'):
                 
                 if img.get_attribute('src') not in ad_image_list:
                     ad_image_list.append(img.get_attribute('src'))
             data_dic['ad_images'] = ad_image_list
-            print('===============================================')
-            print(data_dic['title'])
-            print(data_dic['link'])
-            print(data_dic['ad_id'])
-            print(data_dic['model'])
-            print(data_dic['date'])
-            print(data_dic['type'])
-            print(data_dic['year'])
-            print(data_dic['gear'])
-            print(data_dic['city'])
-            print(data_dic['address'])
-            print(data_dic['price'])
-            print(data_dic['used'])
-            print(data_dic['fuel_type'])
-            print(data_dic['Engine_volume'])
-            print(data_dic['engine'])
-            print(data_dic['acceleration'])
-            print(data_dic['Combined_consumption'])
-            print(data_dic['call_number'])
-            print(data_dic['ad_images'])
-            print('===============================================')
-
-            # extracn all data here 
-
-
+    
             ad_close_btn = WebDriverWait(driver, 30).until(
                 EC.presence_of_all_elements_located((By.CLASS_NAME, 'bama-ad-detail-modal__close-button')))
             ad_close_btn[0].click()
             time.sleep(1)
-            # update table here 
+
             cursor.execute('''
             INSERT INTO deep_scan (title,link, ad_id,  model, date,type, year, used, gear,  price,installment_price,
             monthly_price, city, address,fuel_type,body_condition,body_color,interior_color,description,Engine_volume,
@@ -174,8 +142,6 @@ def deep_scan_extract(driver,cursor,conn):
               data_dic['monthly_price'], data_dic['city'], data_dic['address'],data_dic['fuel_type'],data_dic['body_condition'],
               data_dic['body_color'],data_dic['interior_color'],data_dic['description'],data_dic['Engine_volume'],data_dic['engine'],
               data_dic['acceleration'],data_dic['Combined_consumption'],data_dic['call_number'],str(data_dic['ad_images'])))
-            
-
             
             conn.commit()    
 

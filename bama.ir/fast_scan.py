@@ -5,7 +5,7 @@ from bs4 import BeautifulSoup
 from datetime import datetime, timedelta
 
 BA_MA_URL = 'https://bama.ir/car'
-SCROLL_COUNT = 1
+SCROLL_COUNT = 100
 
 def get_soup_with_selenium(url, scroll_count=5):
     options = webdriver.ChromeOptions()
