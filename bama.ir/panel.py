@@ -1,7 +1,5 @@
 from fast_scan import fast_scan_main
 
-
-
 class panel :
     def __init__(self) -> None:
         pass
@@ -25,7 +23,6 @@ class panel :
                 break
             else:
                 print('wrong option !! retry')
-
 
 if __name__ == '__main__' :
     crawler_panel = panel()

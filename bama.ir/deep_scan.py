@@ -3,11 +3,15 @@ import sqlite3
 from selenium import webdriver
 from bs4 import BeautifulSoup
 from datetime import datetime, timedelta
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+
 
 BA_MA_URL = 'https://bama.ir/car'
-SCROLL_COUNT = 1
-
-def get_soup_with_selenium(url, scroll_count=5):
+SCROLL_COUNT = 2
+#
+def get_selenium_driver(url, scroll_count=5):
     options = webdriver.ChromeOptions()
     options.add_argument("--disable-dev-shm-usage")
     options.add_argument("--no-sandbox")
@@ -16,9 +20,7 @@ def get_soup_with_selenium(url, scroll_count=5):
     for _ in range(scroll_count):
         driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
         time.sleep(3)
-    page_source = driver.page_source
-    driver.quit()
-    return BeautifulSoup(page_source, 'html.parser')
+    return driver
 
 def calculate_date(date_string):
     now = datetime.now()
@@ -42,7 +44,104 @@ def calculate_date(date_string):
         return now.strftime('%Y-%m-%d')
     return None
 
+
+def deep_scan_extract(driver,cursor):
+    
+
+
+
+
+
+    ad_elements = driver.find_elements(By.CLASS_NAME,'bama-ad-holder')
+    for ad in ad_elements:
+        ad_id = ad.find_element(By.TAG_NAME,'a').get_attribute('data-adcode')
+        cursor.execute('SELECT ad_id FROM ads WHERE ad_id = ?', (ad_id,))
+        existing_id = cursor.fetchone()
+        if existing_id is None:
+            
+            
+
+
+            
+
+
+
+
+            driver.execute_script("arguments[0].scrollIntoView({behavior: 'auto', block: 'center', inline: 'center'});", ad)
+            ad.click()
+
+
+            ad_warpper = WebDriverWait(driver, 30).until(EC.presence_of_all_elements_located((By.CLASS_NAME, 'bama-ad-detail-wrapper')))
+            data_dic = {
+                        'title': ad_warpper[0].find_element(By.TAG_NAME,'h1').text.strip(),
+                        'link': ad.find_element(By.TAG_NAME,'a').get_attribute('href'),
+                        'id': ad.find_element(By.TAG_NAME,'a').get_attribute('data-adcode').strip(),
+                        'model': ad_warpper[0].find_element(By.TAG_NAME,'h1').text.split('،')[0].strip(),
+                        'date': calculate_date(ad_warpper[0].find_element(By.CLASS_NAME,'bama-ad-detail-title__ad-time').text),
+                        'type': ad_warpper[0].find_element(By.TAG_NAME,'h1').text.split('،')[1].strip(),
+                        'year': ad_warpper[0].find_element(By.CLASS_NAME,'bama-ad-detail-title__subtitle-holder').find_elements(By.TAG_NAME,'span')[0].text,
+                        'used': '',
+                        'gear': ad_warpper[0].find_element(By.CLASS_NAME,'bama-ad-detail-title__subtitle-holder').find_elements(By.TAG_NAME,'span')[-1].text,
+                        'badges': 'N/A',
+                        'price': '',
+                        'installment_price': '',
+                        'monthly_price': '',
+                        'city':  ad_warpper[0].find_element(By.CLASS_NAME,'address-text').text.split('/')[0],
+                        'address':"N/A"         
+                       }
+
+            address_text = ad_warpper[0].find_element(By.CLASS_NAME,'address-text').text.split('/')
+            if len(address_text) >= 2:
+                data_dic['address'] = address_text[1].strip()
+            else : 
+                data_dic['address'] = 'N/A'
+
+
+
+            phone_number_btn = WebDriverWait(driver, 30).until(
+                EC.presence_of_all_elements_located((By.CLASS_NAME, 'bama-call-to-seller__button')))
+            phone_number_btn[0].click()
+            seller_phone_number_element = WebDriverWait(driver, 30).until(
+                EC.presence_of_all_elements_located((By.CLASS_NAME, 'bama-call-to-seller__number-text')))
+            seller_phone_number = seller_phone_number_element[0].text
+
+
+            print('===============================================')
+            print(data_dic['title'])
+            print(data_dic['link'])
+            print(data_dic['id'])
+            print(data_dic['model'])
+            print(data_dic['date'])
+            print(data_dic['type'])
+            print(data_dic['year'])
+            print(data_dic['gear'])
+            print(data_dic['city'])
+            print(data_dic['address'])
+            print(seller_phone_number)
+            print('===============================================')
+
+            # extracn all data here 
+
+
+            ad_close_btn = WebDriverWait(driver, 30).until(
+                EC.presence_of_all_elements_located((By.CLASS_NAME, 'bama-ad-detail-modal__close-button')))
+            ad_close_btn[0].click()
+            time.sleep(1)
+            # update table here 
+
 def extract_ad_data(ad,cursor):
+
+
+
+
+    # get ad id 
+    # if cursor.execute('SELECT ad_id FROM ads WHERE ad_id = ?', (data_dic['id'],)) is not None : 
+    # click on ad and extrction data
+
+
+
+
+
     data_dic = {
         'title': ad.find('a').attrs['title'],
         'link': 'https://bama.ir' + ad.find('a').attrs['href'],
@@ -149,11 +248,20 @@ def fast_scan_db_table():
     conn.close()  
 
 def fast_scan_main():
-    fast_scan_db_table()
+    # fast_scan_db_table()
     conn = sqlite3.connect('bama_ads.db')
     cursor = conn.cursor()
-    soup = get_soup_with_selenium(BA_MA_URL, SCROLL_COUNT)
-    ads_fast_scan_extraction(soup, cursor)
-    conn.commit()
-    conn.close()
 
+
+
+
+
+    driver = get_selenium_driver(BA_MA_URL, SCROLL_COUNT)
+    deep_scan_extract(driver,cursor)
+
+    # soup = get_soup_with_selenium(BA_MA_URL, SCROLL_COUNT)
+    # ads_fast_scan_extraction(soup, cursor)
+    # conn.commit()
+    # conn.close()
+
+fast_scan_main()
