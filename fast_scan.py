@@ -1,46 +1,6 @@
-import time 
 import sqlite3
-from selenium import webdriver
-from bs4 import BeautifulSoup
-from datetime import datetime, timedelta
-
-BA_MA_URL = 'https://bama.ir/car'
-SCROLL_COUNT = 100
-
-def get_soup_with_selenium(url, scroll_count=5):
-    options = webdriver.ChromeOptions()
-    options.add_argument("--disable-dev-shm-usage")
-    options.add_argument("--no-sandbox")
-    driver = webdriver.Chrome(options=options)
-    driver.get(url)
-    for _ in range(scroll_count):
-        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-        time.sleep(3)
-    page_source = driver.page_source
-    driver.quit()
-    return BeautifulSoup(page_source, 'html.parser')
-
-def calculate_date(date_string):
-    now = datetime.now()
-    if 'دقایقی پیش' in date_string or 'لحظاتی پیش' in date_string:
-        return now.strftime('%Y-%m-%d')
-    elif 'ساعت پیش' in date_string:
-        hours_ago = int(date_string.split()[0])
-        post_time = now - timedelta(hours=hours_ago)
-        return post_time.strftime('%Y-%m-%d')
-
-    elif 'روز پیش' in date_string:
-        days_ago = int(date_string.split()[0])
-        post_time = now - timedelta(days=days_ago)
-        return post_time.strftime('%Y-%m-%d')
-
-    elif 'دیروز' in date_string:
-        post_time = now - timedelta(days=1)
-        return post_time.strftime('%Y-%m-%d')
-
-    elif 'سنجاق شده' in date_string:
-        return now.strftime('%Y-%m-%d')
-    return None
+from db_controller import fast_scan_db_table
+from global_config import calculate_date , get_soup_with_selenium
 
 def extract_ad_data(ad,cursor):
     data_dic = {
@@ -122,33 +82,7 @@ def ads_fast_scan_extraction(ad_source,cursor):
     for ad in bama_ad_holders:
         extract_ad_data(ad,cursor)
 
-def fast_scan_db_table():
-    conn = sqlite3.connect('bama_ads.db')
-    cursor = conn.cursor()
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS fast_scan (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            ad_id TEXT,
-            title TEXT,
-            link TEXT,
-            model TEXT,
-            date TEXT,
-            type TEXT,
-            year TEXT,
-            used TEXT,
-            gear TEXT,
-            badges TEXT,
-            price TEXT,
-            installment_price TEXT,
-            monthly_price TEXT,
-            city TEXT,
-            address TEXT
-        )
-    ''')
-    conn.commit()
-    conn.close()  
-
-def fast_scan_main():
+def fast_scan_main(BA_MA_URL, SCROLL_COUNT):
     fast_scan_db_table()
     conn = sqlite3.connect('bama_ads.db')
     cursor = conn.cursor()

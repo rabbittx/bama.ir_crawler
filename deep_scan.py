@@ -1,48 +1,10 @@
 import time 
 import sqlite3
-from selenium import webdriver
-from datetime import datetime, timedelta
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-
-
-BA_MA_URL = 'https://bama.ir/car'
-SCROLL_COUNT = 50
-
-def get_selenium_driver(url, scroll_count=5):
-    options = webdriver.ChromeOptions()
-    options.add_argument("--disable-dev-shm-usage")
-    options.add_argument("--no-sandbox")
-    driver = webdriver.Chrome(options=options)
-    driver.get(url)
-    for _ in range(scroll_count):
-        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-        time.sleep(3)
-    return driver
-
-def calculate_date(date_string):
-    now = datetime.now()
-    if 'دقایقی پیش' in date_string or 'لحظاتی پیش' in date_string:
-        return now.strftime('%Y-%m-%d')
-    elif 'ساعت پیش' in date_string:
-        hours_ago = int(date_string.split()[0])
-        post_time = now - timedelta(hours=hours_ago)
-        return post_time.strftime('%Y-%m-%d')
-
-    elif 'روز پیش' in date_string:
-        days_ago = int(date_string.split()[0])
-        post_time = now - timedelta(days=days_ago)
-        return post_time.strftime('%Y-%m-%d')
-
-    elif 'دیروز' in date_string:
-        post_time = now - timedelta(days=1)
-        return post_time.strftime('%Y-%m-%d')
-
-    elif 'سنجاق شده' in date_string:
-        return now.strftime('%Y-%m-%d')
-    return now.strftime('%Y-%m-%d')
-
+from db_controller import deep_scan_db_table
+from global_config import calculate_date , get_selenium_driver
 
 def deep_scan_extract(driver,cursor,conn):
     ad_elements = driver.find_elements(By.CLASS_NAME,'bama-ad-holder')
@@ -142,47 +104,9 @@ def deep_scan_extract(driver,cursor,conn):
               data_dic['monthly_price'], data_dic['city'], data_dic['address'],data_dic['fuel_type'],data_dic['body_condition'],
               data_dic['body_color'],data_dic['interior_color'],data_dic['description'],data_dic['Engine_volume'],data_dic['engine'],
               data_dic['acceleration'],data_dic['Combined_consumption'],data_dic['call_number'],str(data_dic['ad_images'])))
-            
             conn.commit()    
 
-
-def deep_scan_db_table():
-    conn = sqlite3.connect('bama_ads.db')
-    cursor = conn.cursor()
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS deep_scan (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            title TEXT,
-            link TEXT,
-            ad_id TEXT,
-            model TEXT,
-            date TEXT,
-            type TEXT,
-            year TEXT,
-            used TEXT,
-            gear TEXT,
-            price TEXT,
-            installment_price TEXT,
-            monthly_price TEXT,
-            city TEXT,
-            address TEXT,
-            fuel_type TEXT,
-            body_condition TEXT,
-            body_color TEXT,
-            interior_color TEXT,
-            description TEXT,
-            Engine_volume TEXT,
-            engine TEXT,
-            acceleration TEXT,
-            Combined_consumption TEXT,
-            call_number TEXT,
-            ad_images TEXT
-        )
-    ''')
-    conn.commit()
-    conn.close()  
-
-def deep_scan_main():
+def deep_scan_main(BA_MA_URL, SCROLL_COUNT):
     conn = sqlite3.connect('bama_ads.db')
     deep_scan_db_table()
     cursor = conn.cursor()
