@@ -3,21 +3,34 @@ from db_controller import fast_scan_db_table
 from global_config import calculate_date , get_soup_with_selenium
 
 def extract_ad_data(ad,cursor):
+    """
+    این تابع اطلاعات یک آگهی خودرو را از یک تگ BeautifulSoup استخراج کرده و در یک دیکشنری ذخیره می‌کند. همچنین اطلاعات آگهی را در پایگاه داده SQLite ذخیره می‌کند.
+
+    ورودی:
+
+    ad (Tag): تگ Beautiful Soup حاوی اطلاعات آگهی.
+    cursor (sqlite3.Cursor): کرسور برای ارتباط با پایگاه داده SQLite.
+    خروجی:
+
+    یک دیکشنری حاوی اطلاعات آگهی خودرو.
+        
+    
+    """
     data_dic = {
         'title': ad.find('a').attrs['title'],
         'link': 'https://bama.ir' + ad.find('a').attrs['href'],
         'id': ad.find('a').attrs['data-adcode'],
-        'model': '',
-        'date': '',
-        'type': '',
-        'year': '',
-        'used': '',
-        'gear': '',
+        'model': 'N/A',
+        'date': 'N/A',
+        'type': 'N/A',
+        'year': 'N/A',
+        'used': 'N/A',
+        'gear': 'N/A',
         'badges': 'N/A',
-        'price': '',
-        'installment_price': '',
-        'monthly_price': '',
-        'city': '',
+        'price': 'N/A',
+        'installment_price': 'N/A',
+        'monthly_price': 'N/A',
+        'city': 'N/A',
         'address': 'N/A'
     }
 
@@ -78,11 +91,36 @@ def extract_ad_data(ad,cursor):
     return data_dic
 
 def ads_fast_scan_extraction(ad_source,cursor):
+    """
+    این تابع اطلاعات آگهی‌های خودرو را از منبع صفحه وب‌سایت استخراج می‌کند و در پایگاه داده SQLite ذخیره می‌کند.
+
+    ورودی:
+        ad_source (BeautifulSoup): شیء Beautiful Soup حاوی منبع صفحه وب‌سایت.
+        cursor (sqlite3.Cursor): کرسور برای ارتباط با پایگاه داده SQLite.
+    خروجی:
+        بدون خروجی (None).
+
+    
+    """
     bama_ad_holders = ad_source.find_all('div', class_='bama-ad-holder')
     for ad in bama_ad_holders:
         extract_ad_data(ad,cursor)
 
 def fast_scan_main(BA_MA_URL, SCROLL_COUNT):
+    """
+    این تابع اجرای اصلی برای انجام عملیات اسکن سریع روی آگهی‌های خودرو است. این تابع داده‌ها را استخراج کرده و در پایگاه داده SQLite ذخیره می‌کند.
+
+    ورودی:
+
+        BA_MA_URL (str): آدرس وب‌سایت Bama.ir.
+        SCROLL_COUNT (int): تعداد باری که صفحه وب را پایین می‌کشیم تا اطلاعات بیشتری استخراج شود.
+    خروجی:
+
+        بدون خروجی (None).
+    
+    
+    """
+
     fast_scan_db_table()
     conn = sqlite3.connect('bama_ads.db')
     cursor = conn.cursor()

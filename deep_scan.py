@@ -7,6 +7,18 @@ from db_controller import deep_scan_db_table
 from global_config import calculate_date , get_selenium_driver
 
 def deep_scan_extract(driver,cursor,conn):
+    """
+    این تابع اطلاعات آگهی‌های خودرو را با استفاده از درایور Selenium به صورت عمیق از صفحه وب‌سایت استخراج می‌کند و در پایگاه داده SQLite ذخیره می‌کند.
+
+    ورودی:
+
+        driver (webdriver.Chrome): درایور Selenium برای متصل شدن به وب‌سایت.
+        cursor (sqlite3.Cursor): کرسور برای ارتباط با پایگاه داده SQLite.
+        conn (sqlite3.Connection): اتصال به پایگاه داده SQLite.
+    خروجی:
+
+        بدون خروجی (None).
+    """
     ad_elements = driver.find_elements(By.CLASS_NAME,'bama-ad-holder')
     for ad in ad_elements:
         ad_id = ad.find_element(By.TAG_NAME,'a').get_attribute('data-adcode')
@@ -29,21 +41,21 @@ def deep_scan_extract(driver,cursor,conn):
                         'used': ad_warpper[0].find_element(By.CLASS_NAME,'bama-icon-speed-outlined-bold').find_element(By.XPATH,'..').find_element(By.TAG_NAME,'p').text,
                         'gear': ad_warpper[0].find_element(By.CLASS_NAME,'bama-icon-gearbox-outlined-bold').find_element(By.XPATH,'..').find_elements(By.TAG_NAME,'p')[0].text,
                         'price': ad_warpper[0].find_element(By.CLASS_NAME,'bama-ad-detail-price__price-text').text,
-                        'installment_price': '',
-                        'monthly_price': '',
+                        'installment_price': 'N/A',
+                        'monthly_price': 'N/A',
                         'city':  ad_warpper[0].find_element(By.CLASS_NAME,'address-text').text.split('/')[0],
                         'address':"N/A" ,
                         'fuel_type'  :ad_warpper[0].find_element(By.CLASS_NAME,'bama-icon-gas-outlined-bold').find_element(By.XPATH,'..').find_elements(By.TAG_NAME,'p')[0].text,
                         'body_condition':ad_warpper[0].find_element(By.CLASS_NAME,'bama-icon-car_body-outlined-bold').find_element(By.XPATH,'..').find_elements(By.TAG_NAME,'p')[0].text,
                         'body_color':ad_warpper[0].find_element(By.CLASS_NAME,'bama-icon-brush-outlined-bold').find_element(By.XPATH,'..').find_elements(By.TAG_NAME,'p')[0].text,
                         'interior_color':ad_warpper[0].find_element(By.CLASS_NAME,'bama-icon-seat-outlined-bold').find_element(By.XPATH,'..').find_elements(By.TAG_NAME,'p')[0].text,
-                        'description' : '',
-                        'Engine_volume':'',
-                        'engine':'',
-                        'acceleration':'',
-                        'Combined_consumption':'',
-                        'call_number':'',
-                        'ad_images' : ''
+                        'description' : 'N/A',
+                        'Engine_volume':'N/A',
+                        'engine':'N/A',
+                        'acceleration':'N/A',
+                        'Combined_consumption':'N/A',
+                        'call_number':'N/A',
+                        'ad_images' : 'N/A'
                        }
             
             address_text = ad_warpper[0].find_element(By.CLASS_NAME,'address-text').text.split('/')
@@ -57,12 +69,12 @@ def deep_scan_extract(driver,cursor,conn):
                 data_dic['installment_price'] =installment_price[0].text
                 data_dic['monthly_price'] =installment_price[1].text
             except : 
-                data_dic['installment_price'] = ''
-                data_dic['monthly_price'] = ''
+                data_dic['installment_price'] = 'N/A'
+                data_dic['monthly_price'] = 'N/A'
             try :
                 data_dic['description'] =  WebDriverWait(ad_warpper[0], 3).until(EC.presence_of_all_elements_located((By.CLASS_NAME, 'desc')))[0].text 
             except :
-                data_dic['description'] = ''
+                data_dic['description'] = 'N/A'
 
             for item in ad_warpper[0].find_elements(By.CLASS_NAME,'bama-vehicle-detail-with-link__row'):
                 if item.find_element(By.CLASS_NAME,'bama-vehicle-detail-with-link__row-title').text == 'حجم موتور':
@@ -81,7 +93,7 @@ def deep_scan_extract(driver,cursor,conn):
                     EC.presence_of_all_elements_located((By.CLASS_NAME, 'bama-call-to-seller__number-text')))
                 data_dic['call_number'] = seller_phone_number_element[0].text
             except:
-                data_dic['call_number'] =''
+                data_dic['call_number'] ='N/A'
             ad_image_list = []
             for img in ad_warpper[0].find_elements(By.TAG_NAME,'img'):
                 
@@ -107,6 +119,17 @@ def deep_scan_extract(driver,cursor,conn):
             conn.commit()    
 
 def deep_scan_main(BA_MA_URL, SCROLL_COUNT):
+    """
+    این تابع اجرای اصلی برای انجام عملیات اسکن عمیق روی آگهی‌های خودرو است. این تابع داده‌ها را استخراج کرده و در پایگاه داده SQLite ذخیره می‌کند.
+
+    ورودی:
+
+        BA_MA_URL (str): آدرس وب‌سایت Bama.ir.
+    خروجی:
+
+        بدون خروجی (None).
+            
+    """
     conn = sqlite3.connect('bama_ads.db')
     deep_scan_db_table()
     cursor = conn.cursor()

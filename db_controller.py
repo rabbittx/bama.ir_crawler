@@ -1,6 +1,10 @@
 import sqlite3
 
 def deep_scan_db_table():
+    """
+    این تابع جدول مورد نیاز برای اجرای اسکن عمیق روی آگهی‌های خودرو در پایگاه داده SQLite ایجاد می‌کند.
+
+    """
     conn = sqlite3.connect('bama_ads.db')
     cursor = conn.cursor()
     cursor.execute('''
@@ -37,6 +41,10 @@ def deep_scan_db_table():
     conn.close()  
 
 def fast_scan_db_table():
+    """
+    این تابع جدول مورد نیاز برای اجرای اسکن سریع روی آگهی‌های خودرو در پایگاه داده SQLite ایجاد می‌کند.
+
+    """
     conn = sqlite3.connect('bama_ads.db')
     cursor = conn.cursor()
     cursor.execute('''
