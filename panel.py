@@ -1,5 +1,8 @@
 from fast_scan import fast_scan_main
 from deep_scan import deep_scan_main
+# TODO add user agent 
+# TODO add logging 
+# TODO add docs 
 class panel :
     def __init__(self):
         pass
@@ -30,3 +33,4 @@ class panel :
 if __name__ == '__main__' :
     crawler_panel = panel()
     crawler_panel.panel_menu()
+
