@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 from selenium import webdriver
 from bs4 import BeautifulSoup
 import time
+import sys 
 
 USER_AGENTS = {
     "chrome": "user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36",
@@ -66,6 +67,8 @@ def get_selenium_driver(url, scroll_count=5, user_agent="chrome"):
     try:
         driver.get(url)
         for _ in range(scroll_count):
+            sys.stdout.write(f"\rScrolling progress: {_+1}/{scroll_count}")
+            sys.stdout.flush()
             driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
             time.sleep(3)
         return driver
