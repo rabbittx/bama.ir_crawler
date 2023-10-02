@@ -26,7 +26,7 @@ pip install -r requirements.txt
 ## نصب ChromeDriver (توجه به نکته)
 برای اجرای مرورگر توسط Selenium، ChromeDriver نیاز است. برای نصب ChromeDriver، به اینترنت مراجعه کرده و ChromeDriver را برای سیستم‌عامل و مرورگر Chrome خود دانلود کنید و آن را در مسیر مناسب برای سیستم‌عامل خود قرار دهید.
 
-نکته: ChromeDriver باید با نسخه مرورگر Chrome شما سازگار باشد. برای اطلاعات بیشتر، به مستندات Selenium مراجعه کنید.
+نکته: ChromeDriver باید با نسخه مرورگر Chrome شما سازگار باشد. برای اطلاعات بیشتر، به مستندات [Selenium](https://selenium-python.readthedocs.io/installation.html) مراجعه کنید.
 
 ## اجرای پروژه 
 پس از نصب وابستگی‌ها و ChromeDriver، می‌توانید فایل panel.py را اجرا کنید تا پروژه شروع به کار کند. برای اجرا، دستور زیر را در ترمینال وارد کنید:
@@ -48,6 +48,6 @@ python panel.py
 ## ارتباط با ما
 در صورت داشتن سوال یا بازخورد، با ما تماس بگیرید:
 
-ایمیل: amirhabibi1993x@email.com
+ایمیل: amirhabibi1993x@gmail.com
 ما منتظر بازخوردهای شما هستیم!
 
