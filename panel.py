@@ -5,15 +5,15 @@ class panel :
     """
     این کلاس برای مدیریت عملیات اسکن سریع و عمیق روی آگهی‌های خودرو استفاده می‌شود. این کلاس دارای توابع زیر است:
 
-    __init__(self, fast_scan_scroll=100, deep_scan_scroll=10): سازنده کلاس که مقادیر پیش‌فرض برای تعداد اسکرول در اسکن سریع و عمیق را تنظیم می‌کند.
+    __init__(self, fast_scan_scroll=10, deep_scan_scroll=1): سازنده کلاس که مقادیر پیش‌فرض برای تعداد اسکرول در اسکن سریع و عمیق را تنظیم می‌کند.
     do_fast_scan(self, url, scroll): انجام عملیات اسکن سریع بر روی آگهی‌های خودرو.
     do_deep_scan(self, url, scroll): انجام عملیات اسکن عمیق بر روی آگهی‌های خودرو.
     run_panel(self): اجرای پنل مدیریتی برای انتخاب و اجرای نوع اسکن.
         
     """
-    def __init__(self,fast_scan_scroll=100,deep_scan_scroll=10,):
-        self.DEPP_SCAN_SCROLL =  fast_scan_scroll
-        self.FAST_SCAN_SCROLL = deep_scan_scroll
+    def __init__(self,fast_scan_scroll=10,deep_scan_scroll=1,):
+        self.DEPP_SCAN_SCROLL =  deep_scan_scroll
+        self.FAST_SCAN_SCROLL = fast_scan_scroll
         self.BA_MA_URL = 'https://bama.ir/car'
     
     def do_fast_scan(self,url,scroll):
@@ -40,5 +40,5 @@ class panel :
                 print('wrong option !! retry')
 
 if __name__ == '__main__' :
-    crawler_panel = panel(200,50)
+    crawler_panel = panel(fast_scan_scroll=100,deep_scan_scroll=50)
     crawler_panel.run_panel()
