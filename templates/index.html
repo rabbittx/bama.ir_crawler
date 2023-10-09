@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bootstrap Refactor</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <style>
+        body {
+            background: linear-gradient(to right, #e6e9f0 0%, #eef1f5 100%);
+            font-family: 'Trebuchet MS', Arial, sans-serif;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            transition: background-color 0.3s;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+
+        .container {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0px 3px 20px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+
+        h2 {
+            border-bottom: 2px solid #007bff;
+            display: inline-block;
+            padding-bottom: 10px;
+            margin-bottom: 30px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container-fluid py-5">
+        <div class="container py-4">
+            <div class="row">
+
+                <div class="col-md-6 text-center mt-5">
+                    <h2>اسکن سری</h2>
+                    <p>با اسکن سری میتوانید اطلاعات اگاهی های خودرو را در یافت و در ۱۵ فیلد ذخیره کنید</p>
+                    <input type="number" id="fastScanPages" placeholder="Enter number of pages" class="form-control mb-2">
+                    <button id="fastScan">Fast Scan</button>
+                </div>
+                
+                <div class="col-md-6 text-center mt-5">
+                    <h2>اسکن عمیق</h2>
+                    <p>با اسکن عمیق اطلاعات هر اگهی به صورت کامل از صفحه اگهی استخراج و در ۲۵ فیلد ذخیره کنید</p>
+                    <input type="number" id="deepScanPages" placeholder="Enter number of pages" class="form-control mb-2">
+                    <button id="deepScan">Deep Scan</button>
+                </div>
+                
+
+                <div class="col-md-12 text-center mt-5">
+                    <h2>انتخاب جدول دیتابیس</h2>
+                    <div class="btn-group btn-group-toggle mt-3" data-toggle="buttons">
+                        <label class="btn btn-secondary active">
+                            <input type="radio" name="options" id="option1" autocomplete="off" checked> اسکن سری
+                        </label>
+                        <label class="btn btn-secondary">
+                            <input type="radio" name="options" id="option2" autocomplete="off"> اسکن عمیق
+                        </label>
+                    </div>
+                    <div class="mt-3" id="content-1">
+                        نمایش اطلاعات ذخیره شده در دیتا بیس به صورت جداگانه
+                    </div>
+                    <div class="mt-3 d-none" id="content-2">
+                        نمایش اطلاعات ذخیره شده در دیتا بیس به صورت جداگانه
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="loadingOverlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background-color:rgba(0,0,0,0.7); z-index:1000;">
+        <div style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%);">
+            <div class="spinner-border text-light" role="status">
+                <span class="sr-only">Loading...</span>
+            </div>
+            <p class="text-center text-white mt-2">Scanning in progress, please wait...</p>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script>
+$(document).ready(function() {
+    $("input[name='options']").change(function() {
+        if ($("#option1").is(":checked")) {
+            $("#content-1").removeClass("d-none");
+            $("#content-2").addClass("d-none");
+        } else if ($("#option2").is(":checked")) {
+            $("#content-1").addClass("d-none");
+            $("#content-2").removeClass("d-none");
+        }
+    });
+
+    function startScan(scanType) {
+    let pages = scanType === "fast_scan" ? $("#fastScanPages").val() : $("#deepScanPages").val();
+
+    if (!pages || isNaN(pages) || pages <= 0) {
+        alert("Please enter a valid number of pages.");
+        return;
+    }
+
+    $("#loadingOverlay").show();
+    $.post("/" + scanType, { 'pages': pages }, function(response) {
+        $("#loadingOverlay").hide();
+        alert(response.message);
+    });
+}
+
+    $("#fastScan").click(function() {
+        console.log('start fast scan ')
+        startScan('fast_scan');
+    });
+
+    $("#deepScan").click(function() {
+        console.log('start deep scan ')
+
+        startScan('deep_scan');
+    });
+});
+
+    </script>
+</body>
+</html>

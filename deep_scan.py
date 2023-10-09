@@ -21,7 +21,7 @@ def deep_scan_extract(driver,cursor,conn):
     """
     ad_elements = driver.find_elements(By.CLASS_NAME,'bama-ad-holder')
     for index ,ad in enumerate(ad_elements):
-        sys.stdout.write(f"\rScrolling progress: {index+1}/{len(ad_elements)}")
+        sys.stdout.write(f"\rcar ads progress: {index+1}/{len(ad_elements)}")
         sys.stdout.flush()
         ad_id = ad.find_element(By.TAG_NAME,'a').get_attribute('data-adcode')
         cursor.execute('SELECT ad_id FROM deep_scan WHERE ad_id = ?', (ad_id,))
